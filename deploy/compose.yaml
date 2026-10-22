@@ -1,0 +1,36 @@
+services:
+  app:
+    build:
+      context: ..
+    restart: unless-stopped
+    environment:
+      WORKBENCH_USERNAME: ${WORKBENCH_USERNAME:?请先运行配置线上密码.py}
+      WORKBENCH_PASSWORD_HASH: ${WORKBENCH_PASSWORD_HASH:?请先生成密码配置}
+    volumes:
+      - workbench_data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+  gateway:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:?请填写真实域名}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+volumes:
+  workbench_data:
+  caddy_data:
+  caddy_config:

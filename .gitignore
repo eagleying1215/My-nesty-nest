@@ -1,0 +1,7 @@
+data/
+__pycache__/
+*.pyc
+.playwright/
+.env
+.env.*
+deploy/private.env
